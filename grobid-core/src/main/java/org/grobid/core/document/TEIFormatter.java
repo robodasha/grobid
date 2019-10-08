@@ -1,5 +1,6 @@
 package org.grobid.core.document;
 
+import com.fasterxml.jackson.core.format.InputAccessor.Std;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.tuple.Pair;
@@ -1268,7 +1269,7 @@ public class TEIFormatter {
                 }
                 curDiv.appendChild(note);
             } else if (clusterLabel.equals(TaggingLabels.PARAGRAPH)) {
-                String clusterContent = LayoutTokensUtil.normalizeDehyphenizeText(cluster.concatTokens());
+                // start a new paragraph if needed
                 if (isNewParagraph(lastClusterLabel, curParagraph)) {
                     curParagraph = teiElement("p");
                     if (config.isGenerateTeiIds()) {
@@ -1277,7 +1278,28 @@ public class TEIFormatter {
                     }
                     curDiv.appendChild(curParagraph);
                 }
-                curParagraph.appendChild(clusterContent);
+                if (config.isGenerateTeiCoordinates("word")) {
+                    // coordinates for individual words
+                    List<LayoutToken> ts = LayoutTokensUtil.dehyphenize(cluster.concatTokens());
+                    for (int i = 0; i < ts.size(); i++) {
+                        LayoutToken t = ts.get(i);
+                        // if token is a space, no coords needed
+                        if (t.t().equals(" ")) {
+                            curParagraph.appendChild(t.t());
+                        } else {
+                            Element word = teiElement("span");
+                            // calculate coords 
+                            word.addAttribute(new Attribute("coords", LayoutTokensUtil.getCoordsString(Arrays.asList(t))));
+                            // append word to paragraph
+                            curParagraph.appendChild(word);
+                            word.appendChild(t.t());
+                        }
+                    }
+                } else {
+                    // just concatenate the whole paragraph
+                    String clusterContent = LayoutTokensUtil.normalizeDehyphenizeText(cluster.concatTokens());
+                    curParagraph.appendChild(clusterContent);
+                }
             } else if (MARKER_LABELS.contains(clusterLabel)) {
                 List<LayoutToken> refTokens = cluster.concatTokens();
                 refTokens = LayoutTokensUtil.dehyphenize(refTokens);
