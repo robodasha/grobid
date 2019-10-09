@@ -1288,7 +1288,7 @@ public class TEIFormatter {
                             curParagraph.appendChild(t.t());
                         } else {
                             String wordText = LayoutTokensUtil.normalizeDehyphenizeText(Arrays.asList(t));
-                            if (wordText != null) {
+                            if (wordText != null && wordText.length() > 0) {
                                 Element wordElem = teiElement("span");
                                 // calculate coords 
                                 wordElem.addAttribute(new Attribute("coords", LayoutTokensUtil.getCoordsString(Arrays.asList(t))));
