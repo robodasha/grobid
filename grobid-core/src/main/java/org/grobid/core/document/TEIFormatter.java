@@ -1287,12 +1287,15 @@ public class TEIFormatter {
                         if (t.t().equals(" ")) {
                             curParagraph.appendChild(t.t());
                         } else {
-                            Element word = teiElement("span");
-                            // calculate coords 
-                            word.addAttribute(new Attribute("coords", LayoutTokensUtil.getCoordsString(Arrays.asList(t))));
-                            // append word to paragraph
-                            curParagraph.appendChild(word);
-                            word.appendChild(t.t());
+                            String wordText = LayoutTokensUtil.normalizeDehyphenizeText(Arrays.asList(t));
+                            if (wordText != null) {
+                                Element wordElem = teiElement("span");
+                                // calculate coords 
+                                wordElem.addAttribute(new Attribute("coords", LayoutTokensUtil.getCoordsString(Arrays.asList(t))));
+                                // append word to paragraph
+                                curParagraph.appendChild(wordElem);
+                                wordElem.appendChild(wordText);
+                            }
                         }
                     }
                 } else {
