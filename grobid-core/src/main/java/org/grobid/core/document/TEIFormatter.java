@@ -1285,7 +1285,9 @@ public class TEIFormatter {
                         LayoutToken t = ts.get(i);
                         // if token is a space, no coords needed
                         if (t.t().equals(" ")) {
-                            curParagraph.appendChild(t.t());
+                            Element wordElem = teiElement("span");
+                            curParagraph.appendChild(wordElem);
+                            wordElem.appendChild(t.t());
                         } else {
                             String wordText = LayoutTokensUtil.normalizeDehyphenizeText(Arrays.asList(t));
                             if (wordText != null && wordText.length() > 0) {
